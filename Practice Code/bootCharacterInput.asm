@@ -1,9 +1,8 @@
+; output puts ASCII character is al and scan code in ah
+; this program is an example of taking user input character in asm
 
-buffer:
-    times 10 db 0               ; allocates 10 bytes for the input string
-    mov bx, buffer
-    mov [bx], al                
-    inc bx                      ; TODO complete this assignment
+char:
+    db 0                        ; allocate a byte for the character
 
 mov ah, 0                       ; to accept user input you have to do interrup 0x16 with 0 in ah
 int 0x16                        ; sends the 0x16 interrupt
