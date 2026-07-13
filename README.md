@@ -20,3 +20,7 @@ solidify my knowledge of how computers work.
 * Boot from the binary in qemu:
 
 ```bash qemu-system-x86_64 boot.bin```
+
+* Close the vm on arch
+
+Ctrl + Alt + Q
