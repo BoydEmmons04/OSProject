@@ -1,0 +1,6 @@
+To output characters to the screen we have to switch to teletype mode
+
+to do this we use the ax register to trigger it
+
+Switch to teletype mode by putting 0x0e in ah and a letter in al
+using mov commands. Then send an interrupt 0x10

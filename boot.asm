@@ -1,19 +1,22 @@
-; The boot sector is how the computer knows where to boot
-; it looks for a 512 byte long piece of memory ending in 55 aa
+[org 0x7c00]                    ; required for memory offset
 
-; times repeats an action a set number of times
-; db means define byte, it allocates memory 
+mov ah, 0x0e                    ; teletype mode
+mov bx, printString             ; put the label pointer in bx
 
-; $ is the current memory address
-; $$ is the start of the memory block
-; $-$$ is the length of previous code since it has to be 512 bytes
-; 510 - the previous code accounts for the offset of all previous code lines
-; so the total code is 510.
+printLoop:
+    mov al, [bx]                ; dereference pointer and put it in al
+    cmp al, 0                   ; check if we reached the end of the string
+    je end                      ; if null, jump to the end
+    int 0x10                    ; bios interupt
+    inc bx                      ; increment the pointer
+    jmp printLoop               ; loop
+end:
 
-; 510 plus the 0x55 and the 0xaa makes 512 bytes
+jmp $                           ; continuous loop the os
 
-; jump to current memory address
-jmp $
+printString:                    ; defines a variable in memory with label
+    db "Hello World!", 0        ; allocates sequential memory with null terminate
 
-times 510-($-$$) db 0
-db 0x55, 0xaa
+
+times 510-($-$$) db 0           ; creates the boot sector to the right size
+dw 0xaa55                       ; adds the necessary characters to the boot sector
