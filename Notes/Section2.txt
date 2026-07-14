@@ -4,3 +4,8 @@ to do this we use the ax register to trigger it
 
 Switch to teletype mode by putting 0x0e in ah and a letter in al
 using mov commands. Then send an interrupt 0x10
+
+Letters are stored as ascii
+
+to print out the alphabet we can put A into al, then increment in a loop until
+al = Z

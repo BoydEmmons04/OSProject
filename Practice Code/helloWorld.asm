@@ -17,6 +17,5 @@ jmp $                           ; continuous loop the os
 printString:                    ; defines a variable in memory with label
     db "Hello World!", 0        ; allocates sequential memory with null terminate
 
-
 times 510-($-$$) db 0           ; creates the boot sector to the right size
 dw 0xaa55                       ; adds the necessary characters to the boot sector
