@@ -5,6 +5,9 @@ jmp start                                   ; jump over the GDT data so the BIOS
 
 %include "gdt.asm"
 
+print_str:
+    db "Hello World", 0
+
 start:
     cli                                     ; disable all interrupts
 
@@ -19,6 +22,7 @@ start:
 
 [bits 32]                                   ; define 32 bit mode
 %include "clearScreen.asm"
+%include "printString.asm"
 
 start_protected_mode:                       ; protected mode code
     ; set up the stack for protected mode
@@ -41,6 +45,9 @@ start_protected_mode:                       ; protected mode code
     mov al, 'C'
     mov ah, 0x04
     mov word [0xb8004], ax
+
+    mov ebx, print_str
+    call print_string
 
 jmp $                                       ; stay here after writing to video memory
 
