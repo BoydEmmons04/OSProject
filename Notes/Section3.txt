@@ -1,1 +1,0 @@
-The goal for this one is to print strings and get user input 
