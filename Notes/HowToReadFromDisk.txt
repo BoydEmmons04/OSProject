@@ -1,0 +1,42 @@
+Hard drives are made of disks
+
+disks have sectors and cylinders
+
+Each sector on each cylinder is 512 bytes long
+
+CHS addressing
+Cylinder: which concentric ring do we want
+Head: what head do we use / disk is it on
+Sector: what sector (512 byte section) do we want
+
+To read from memory we use the bios interrupt 0x13
+
+What disk do we want:
+- same disk we booted from
+- disk drive number is stored in dl on boot
+- take it out of dl to use later
+
+CHS address:
+- boot sector is at 1
+- so we want to read starting from sector 2
+- Cylinders and Heads start at 0, Sectors start at 1 indexing
+
+How many sectors do we want to run:
+- 1 for now
+
+Where do we want to load the sector:
+- it can be loaded anywhere but 0x7e00 is best
+- this is exactly offset from 0x7c00 the size of the boot sector so it starts next
+
+How do we use this information:
+- use the interrupt 0x13 with the following registers
+- ah <- 2
+- al <- number of sectors to read
+- ch <- cylinder number (0)
+- cl <- sector to start read (2 if boot is 1)
+- dh <- head number
+- dl <- drive number that was saved from dl on boot
+- (es:bx is a pointer to where we want to load the sectors)
+- es <- 0 
+- bx <- 0x7e00
+- then call the interrupt

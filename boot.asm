@@ -1,51 +1,38 @@
-[org 0x7c00]                                            ; apply correct offset for strings and chars
-jmp start                                               ; code has to start executing before the data segment
+[bits 16]                                   ; define that it is 16 bit mode
+[org 0x7c00]                                ; 0x7c00 is the location that the bios loads the boot sector
 
-inputBuffer:                                            ; define a buffer for the user input
-    times 20 db 0
+jmp start                                   ; jump over the GDT data so the BIOS lands on real code
 
-prompt:                                                 ; define a string to print
-    db "Enter a string to print to the screen: ", 0
+%include "gdt.asm"
 
 start:
-    mov ah, 0x0e                                        ; set ttype mode
-    mov bx, prompt                                      ; pointer to prompt in bx
+    cli                                     ; disable all interrupts
 
-printPrompt:                                            ; print string loop
-    mov al, [bx]                                        ; dereference the label
-    cmp al, 0                                           ; compare al to the null character
-    je endPrint                                         ; if null, end loop
-    int 0x10                                            ; bios interrupt to print to screen
-    inc bx                                              ; increment the string pointer
-    jmp printPrompt                                     ; jump to print next char
-endPrint:                                               ; end print
+    lgdt [GDT_Descriptor]                   ; load the GDT
+    mov eax, cr0                            ; move the special register we need to eax
+    or eax, 1                               ; change the last bit to 1
+    mov cr0, eax                            ; move it back to the special register
 
-mov ah, 0x0e                                            ; set ttype mode
-mov bx, inputBuffer                                     ; put pointer to buffer in bx
-inputLoop:                                              ; start input loop
-    mov ah, 0x00                                        ; read key bios        
-    int 0x16                                            ; bios interrupt
-    cmp al, 0x0D                                        ; check if al is Enter key
-    je endInput                                         ; jump if Enter was pressed
-    mov [bx], al                                        ; put the char into bx
-    inc bx                                              ; increment the buffer pointer
-    jmp inputLoop                                       ; loop
-endInput:
-    inc bx                                              ; increment bx from where it ended
-    mov [bx], 0                                         ; add null terminate at the end
+    ; we are now in 32 bit protected mode and need to far jump to another segment
 
-mov ah, 0x0e                                            ; set ttype mode
-mov bx, inputBuffer                                     ; put pointer to buffer in bx
-printString:
-    mov al, [bx]                                        ; put the letter read into al
-    cmp al, 0                                           ; compare to null character
-    je end                                              ; if null jump to end
-    int 0x10                                            ; call bios print interrupt
-    inc bx                                              ; increment to next char
-    jmp printString                                     ; jump to loop start
-end:
+    jmp CODE_SEG:start_protected_mode       ; far jump to CODE_SEG
 
-jmp $                           ; pause here until os closes
+[bits 32]                                   ; define 32 bit mode
+start_protected_mode:                       ; protected mode code
+    ; set up the stack for protected mode
+    mov ax, DATA_SEG                        ; load the data segment
+    mov ds, ax                              ; data segment register
+    mov es, ax                              ; extra segment register
+    mov fs, ax                              ; gp segment register
+    mov gs, ax                              ; gp segment register
+    mov ss, ax                              ; stack segment register
+    mov esp, 0x90000                        ; sets the stack to a high value that wont collide with video memory
 
-times 510-($-$$) db 0           ; creates the boot sector to the right size
-dw 0xaa55                       ; adds the necessary characters to the boot sector
+    mov al, 'A'                             ; letter to print
+    mov ah, 0x11                            ; color to print
+    mov word [0xb8000], ax                  ; write to video memory
+
+jmp $                                       ; pause here until os closes
+
+times 510-($-$$) db 0                       ; creates the boot sector to the right size
+dw 0xaa55                                   ; adds the necessary characters to the boot sector
