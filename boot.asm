@@ -6,7 +6,10 @@ jmp start                                   ; jump over the GDT data so the BIOS
 %include "gdt.asm"
 
 print_str:
-    db "Hello World", 0
+    db "A test for how many characters I can print", 0
+
+char_buffer:
+    db 0, 0                                 ; buffer for character + null terminator
 
 start:
     cli                                     ; disable all interrupts
@@ -21,8 +24,7 @@ start:
     jmp CODE_SEG:start_protected_mode       ; far jump to CODE_SEG
 
 [bits 32]                                   ; define 32 bit mode
-%include "clearScreen.asm"
-%include "printString.asm"
+%include "stdio.asm"
 
 start_protected_mode:                       ; protected mode code
     ; set up the stack for protected mode
@@ -34,20 +36,11 @@ start_protected_mode:                       ; protected mode code
     mov ss, ax                              ; stack segment register
     mov esp, 0x90000                        ; sets the stack to a high value that wont collide with video memory
 
-    call clear_screen                       ; clear the screen once
+    call clear                              ; clear the screen once
 
-    mov al, 'A'                             ; letter to print
-    mov ah, 0x04                            ; color to print
-    mov word [0xb8000], ax                  ; write to video memory
-    mov al, 'B'
-    mov ah, 0x04
-    mov word [0xb8002], ax
-    mov al, 'C'
-    mov ah, 0x04
-    mov word [0xb8004], ax
-
-    mov ebx, print_str
-    call print_string
+    push print_str                          ; push the variable we want
+    call print                              ; call the print function
+    add esp, 4                              ; clean up the stack (one 4-byte parameter)
 
 jmp $                                       ; stay here after writing to video memory
 
