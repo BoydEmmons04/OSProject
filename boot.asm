@@ -4,6 +4,7 @@
 jmp start                                   ; jump over the GDT data so the BIOS lands on real code
 
 %include "gdt.asm"
+global scancode_table                       ; scan code lookup table
 
 print_str:
     db "A test for how many characters I can print", 0
@@ -41,6 +42,12 @@ start_protected_mode:                       ; protected mode code
     push print_str                          ; push the variable we want
     call print                              ; call the print function
     add esp, 4                              ; clean up the stack (one 4-byte parameter)
+
+    call read_char                          ; puts ascii in al
+    mov [char_buffer], al                   ; store character in buffer
+    push char_buffer                        ; push pointer to buffer
+    call print                              ; call the print function
+    add esp, 4                              ; clean up the stack
 
 jmp $                                       ; stay here after writing to video memory
 
