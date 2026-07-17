@@ -17,9 +17,15 @@ solidify my knowledge of how computers work.
 
 ```bash nasm -f bin boot.asm -o boot.bin```
 
+```bash nasm -f bin kernel.asm -o kernel.bin```
+
+* Copy files to a bootable image
+
+```bash cmd /c "copy /b boot.bin+kernel.bin os.img" ```
+
 * Boot from the binary in qemu:
 
-```bash qemu-system-x86_64 boot.bin```
+```bash qemu-system-i386 -drive format=raw,file=os.img```
 
 * Close the vm on arch
 
