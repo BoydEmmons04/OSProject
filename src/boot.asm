@@ -8,17 +8,17 @@ jmp start                                   ; jump over the GDT data so the BIOS
 start:
     cli                                     ; disable all interrupts
 
-    xor ax, ax
-    mov es, ax
-    mov bx, 0x1000      ; load address
+    xor ax, ax                              ; zero ax
+    mov es, ax                              ; set extra segment to 0
+    mov bx, 0x1000                          ; load start address of kernel
 
-    mov ah, 0x02        ; BIOS read sectors
-    mov al, 1           ; number of sectors
-    mov ch, 0           ; cylinder
-    mov cl, 2           ; sector
-    mov dh, 0           ; head
+    mov ah, 0x02                            ; BIOS read sectors
+    mov al, 1                               ; number of sectors (size of kernel)
+    mov ch, 0                               ; cylinder number
+    mov cl, 2                               ; sector number (1 is bootloader)
+    mov dh, 0                               ; head number
 
-    int 0x13
+    int 0x13                                ; calls a bios interrupt to load the kernel into memory
 
     lgdt [GDT_Descriptor]                   ; load the GDT
     mov eax, cr0                            ; move the special register we need to eax
