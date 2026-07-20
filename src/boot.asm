@@ -13,7 +13,7 @@ start:
     mov bx, 0x1000                          ; load start address of kernel
 
     mov ah, 0x02                            ; BIOS read sectors
-    mov al, 1                               ; number of sectors (size of kernel)
+    mov al, 6                               ; number of sectors (size of kernel)
     mov ch, 0                               ; cylinder number
     mov cl, 2                               ; sector number (1 is bootloader)
     mov dh, 0                               ; head number
@@ -41,7 +41,7 @@ start_protected_mode:                       ; protected mode code
     mov ss, ax                              ; stack segment register
     mov esp, 0x90000                        ; sets the stack to a high value that wont collide with video memory
 
-    jmp CODE_SEG:0x1000
+    jmp CODE_SEG:0x1000                     ; far jump tot he code seg
 
 jmp $                                       ; stay here after writing to video memory
 

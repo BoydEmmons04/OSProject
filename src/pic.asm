@@ -15,43 +15,43 @@ global pic_send_eoi
 
 pic_remap:
 
-    ; save current masks
-    in al, 0x21                 ; take input from port 0x21
-    push eax                    ; save to the stack
+    ; Start initialization
+    mov al, 0x11
+    out 0x20, al
+    out 0xA0, al
 
-    in al, 0xa1                 ; another port
-    push eax                    ; save again on the stack
-
-    mov al, 0x11                ; start initialization
-    out 0x21, al                
-    out 0xa0, al
-
-    ; new interrupt offsets
-    mov al, 0x20                ; Master interrupt 32
+    ; Master PIC vector offset = 32
+    mov al, 0x20
     out 0x21, al
 
-    mov al, 0x28                ; Slave interrupt 40
-    out 0xa1, al
+    ; Slave PIC vector offset = 40
+    mov al, 0x28
+    out 0xA1, al
 
-    mov al, 0x04                ; Tell master there is a slave at IRQ2
-    out 0x21, al            
-
-    mov al, 0x02                ; Tell slave
-    out 0xa1, al
-
-    mov al, 0x01                ; 8086/88 mode
+    ; Tell master there is a slave on IRQ2
+    mov al, 0x04
     out 0x21, al
-    out 0xa1, al
 
-    pop eax                     ; restore masks
-    out 0xa1, al
+    ; Tell slave its cascade identity
+    mov al, 0x02
+    out 0xA1, al
 
-    pop eax
+    ; 8086 mode
+    mov al, 0x01
     out 0x21, al
+    out 0xA1, al
+
+    ; Unmask only IRQ0 and IRQ1
+    mov al, 11111100b
+    out 0x21, al
+
+    ; Mask all slave IRQs
+    mov al, 11111111b
+    out 0xA1, al
 
     ret
 
 pic_send_eoi:
-    mov al, 0x20
-    out 0x20, al
+    mov al, 0x20                    ; end of interrupt code
+    out 0x20, al                    ; send it out
     ret

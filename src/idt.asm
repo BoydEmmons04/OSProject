@@ -13,7 +13,7 @@
 global idt_init
 global idt_load
 
-extern irq1
+;extern irq1
 
 idt:
     times 256 dq 0                          ; allocate 8 bytes for each entry
@@ -25,7 +25,7 @@ idt_descriptor:
 
 set_idt_gate:
 
-    lea edi, [idt + ebx*8]
+    lea edi, [idt + ebx*8]                  ; this stuff is similar to the gdt
 
     mov word [edi], ax
     mov word [edi+2], CODE_SEG
@@ -38,13 +38,19 @@ set_idt_gate:
     ret
 
 idt_init:
+
+    mov eax, irq0               ; system timer
+    mov ebx, 32                 ; remap to interrupt 32
+    call set_idt_gate
     
-    ; TODO
-
-idt_load:
-
-    lidt [idt_descriptor]
+    mov eax, irq1               ; keyboard input
+    mov ebx, 33                 ; remap to int 33
+    call set_idt_gate           ; call the set gate for irq1
 
     ret
 
-    ; TODO: call the init and load in boot
+idt_load:
+
+    lidt [idt_descriptor]       ; load idt into register with idt_descriptor
+
+    ret

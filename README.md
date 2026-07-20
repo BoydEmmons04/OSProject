@@ -23,9 +23,20 @@ solidify my knowledge of how computers work.
 
 ```bash cmd /c "copy /b boot.bin+kernel.bin os.img" ```
 
+or Linux
+
+```bash cat boot.bin kernel.bin > os.img ```
+
 * Boot from the binary in qemu:
 
 ```bash qemu-system-i386 -drive format=raw,file=os.img```
+
+or Omarchy
+
+```bash qemu-system-i386 \
+    -drive format=raw,file=os.img \
+    -display sdl,gl=off 
+```
 
 * Close the vm on arch
 
